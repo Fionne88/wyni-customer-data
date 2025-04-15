@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Customer Data</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f9f9f9;
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 22px;
+    }
+
+    p {
+      font-size: 14px;
+      color: #555;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 13px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Customer List</h1>
+  <p>This table shows data from a Google Sheet. If new rows are added to the sheet, they will appear here when the page is refreshed.</p>
+
+  <table id="data-table">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+
+  <footer>
+    <p>Made with plain HTML and JavaScript. Data was created using an LLM.</p>
+  </footer>
+
+  <script>
+    // Link to published Google Sheet in CSV format
+    const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaGVe7hyo2FK9RG_6INsUD7a3z7NVALg5UT2crT2xmuanoLKBOMy6WjDyjH9BHzfJFZRPM3DeCzneH/pub?gid=0&single=true&output=csv';
+
+    // Fetch the CSV data from Google Sheets
+    fetch(sheetURL)
+      .then(res => res.text())
+      .then(data => {
+        const rows = data.trim().split('\n').map(row => row.split(','));
+        const tableHead = document.querySelector('#data-table thead');
+        const tableBody = document.querySelector('#data-table tbody');
+
+        // Add table headers
+        const headers = rows[0];
+        const headerRow = document.createElement('tr');
+        headers.forEach(header => {
+          const th = document.createElement('th');
+          th.textContent = header;
+          headerRow.appendChild(th);
+        });
+        tableHead.appendChild(headerRow);
+
+        // Add table rows
+        for (let i = 1; i < rows.length; i++) {
+          const row = document.createElement('tr');
+          rows[i].forEach(cell => {
+            const td = document.createElement('td');
+            td.textContent = cell;
+            row.appendChild(td);
+          });
+          tableBody.appendChild(row);
+        }
+      })
+      .catch(err => {
+        console.error('Error loading data:', err);
+      });
+  </script>
+
+</body>
+</html>
