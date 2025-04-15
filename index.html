@@ -47,7 +47,7 @@
 <body>
 
   <h1>Customer List</h1>
-  <p>This table shows data from a Google Sheet. If new rows are added to the sheet, they will appear here when the page is refreshed.</p>
+  <p>This table shows data from a Google Sheet. If new rows are added to the sheet, they will appear here when the page is refreshed or after a few seconds.</p>
 
   <table id="data-table">
     <thead></thead>
@@ -62,38 +62,48 @@
     // Link to published Google Sheet in CSV format
     const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaGVe7hyo2FK9RG_6INsUD7a3z7NVALg5UT2crT2xmuanoLKBOMy6WjDyjH9BHzfJFZRPM3DeCzneH/pub?gid=0&single=true&output=csv';
 
-    // Fetch the CSV data from Google Sheets
-    fetch(sheetURL)
-      .then(res => res.text())
-      .then(data => {
-        const rows = data.trim().split('\n').map(row => row.split(','));
-        const tableHead = document.querySelector('#data-table thead');
-        const tableBody = document.querySelector('#data-table tbody');
+    // Function to fetch and display data from Google Sheets
+    function fetchData() {
+      fetch(sheetURL)
+        .then(res => res.text())
+        .then(data => {
+          const rows = data.trim().split('\n').map(row => row.split(','));
+          const tableHead = document.querySelector('#data-table thead');
+          const tableBody = document.querySelector('#data-table tbody');
 
-        // Add table headers
-        const headers = rows[0];
-        const headerRow = document.createElement('tr');
-        headers.forEach(header => {
-          const th = document.createElement('th');
-          th.textContent = header;
-          headerRow.appendChild(th);
+          // Clear the table before adding new data
+          tableBody.innerHTML = '';
+
+          if (tableHead.innerHTML === '') {
+            const headers = rows[0];
+            const headerRow = document.createElement('tr');
+            headers.forEach(header => {
+              const th = document.createElement('th');
+              th.textContent = header;
+              headerRow.appendChild(th);
+            });
+            tableHead.appendChild(headerRow);
+          }
+
+          // Add table rows
+          for (let i = 1; i < rows.length; i++) {
+            const row = document.createElement('tr');
+            rows[i].forEach(cell => {
+              const td = document.createElement('td');
+              td.textContent = cell;
+              row.appendChild(td);
+            });
+            tableBody.appendChild(row);
+          }
+        })
+        .catch(err => {
+          console.error('Error loading data:', err);
         });
-        tableHead.appendChild(headerRow);
+    }
 
-        // Add table rows
-        for (let i = 1; i < rows.length; i++) {
-          const row = document.createElement('tr');
-          rows[i].forEach(cell => {
-            const td = document.createElement('td');
-            td.textContent = cell;
-            row.appendChild(td);
-          });
-          tableBody.appendChild(row);
-        }
-      })
-      .catch(err => {
-        console.error('Error loading data:', err);
-      });
+    fetchData();
+
+    setInterval(fetchData, 10000);  // Fetch new data every 10 seconds
   </script>
 
 </body>
